@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sustenta Pitanga</title>
+    <!-- Inclui o Tailwind CSS CDN para estilização rápida e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inclui a biblioteca jsPDF para geração de PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Inclui a biblioteca Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Estilos CSS -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Cor de fundo suave */
+            color: #333;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 0.75rem; /* Cantos arredondados */
+            box-shadow: 0 4px 6px rgba(0 0, 0, 0.1);
+            padding: 1.5rem;
+            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .btn-primary {
+            background-color: #3b82f6; /* Azul primário */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #2563eb; /* Azul mais escuro no hover */
+        }
+        .btn-secondary {
+            background-color: #10b981; /* Verde secundário */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #059669; /* Verde mais escuro no hover */
+        }
+        .nav-link {
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+        .nav-link:hover {
+            background-color: #e2e8f0;
+        }
+        .nav-link.active {
+            background-color: #d1e0f0; /* Cor de fundo para link ativo */
+            font-weight: 600;
+        }
+        /* Estilos para gráficos simples (simulados com barras de progresso) */
+        .progress-bar-container {
+            background-color: #e2e8f0;
+            border-radius: 0.5rem;
+            height: 1.5rem;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            border-radius: 0.5rem;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .progress-red { background-color: #ef4444; } /* Vermelho para desperdício alto */
+        .progress-orange { background-color: #f97316; } /* Laranja para alerta */
+        .progress-green { background-color: #22c55e; } /* Verde para bom desempenho */
+
+        /* Estilo para botões de tipo de gráfico */
+        .chart-type-btn {
+            @apply px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200;
+            /* Cor de fundo padrão para os botões */
+            background-color: #a7f3d0; /* Um verde claro para destacar */
+            color: #065f46; /* Texto verde escuro */
+            border: 1px solid #34d399; /* Borda sutil */
+        }
+        .chart-type-btn:hover {
+            background-color: #6ee7b7; /* Um verde um pouco mais escuro no hover */
+        }
+        .chart-type-btn.active {
+            background-color: #10b981; /* Verde mais escuro para o botão ativo */
+            color: white;
+            border-color: #059669;
+        }
+
+        /* Estilos para o pop-up de localização */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .popup-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        .popup-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        .popup-buttons button {
+            @apply px-4 py-2 rounded-md text-base font-medium;
+            transition: background-color 0.3s ease;
+        }
+        .popup-buttons .btn-allow-always {
+            @apply bg-blue-500 text-white hover:bg-blue-600;
+        }
+        .popup-buttons .btn-allow-once {
+            @apply bg-green-500 text-white hover:bg-green-600;
+        }
+        .popup-buttons .btn-deny {
+            @apply bg-gray-300 text-gray-800 hover:bg-gray-400;
+        }
+
+        /* Estilos para o Modo Escuro */
+        body.dark-mode {
+            background-color: #1a202c; /* Fundo escuro */
+            color: #e2e8f0; /* Texto claro padrão */
+        }
+        body.dark-mode .card {
+            background-color: #2d3748; /* Cartões mais escuros */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            color: #e2e8f0; /* Garante que o texto dentro do card seja claro */
+        }
+        body.dark-mode .card h2,
+        body.dark-mode .card h3,
+        body.dark-mode .card p,
+        body.dark-mode .card ul li,
+        body.dark-mode .card label {
+            color: #e2e8f0; /* Cor do texto geral no modo escuro para garantir legibilidade */
+        }
+        /* Manter as cores de status específicas, sobrescrevendo as regras gerais se necessário */
+        body.dark-mode .text-red-600 { color: #ef4444; }
+        body.dark-mode .text-green-600 { color: #22c55e; }
+        body.dark-mode .text-blue-600 { color: #3b82f6; }
+        body.dark-mode .text-orange-600 { color: #f97316; }
+        body.dark-mode .text-gray-500 { color: #cbd5e0; } /* Ajusta tons de cinza para serem claros */
+        body.dark-mode .text-gray-600 { color: #cbd5e0; }
+        body.dark-mode .text-gray-700 { color: #cbd5e0; }
+        body.dark-mode .text-gray-800 { color: #e2e8f0; }
+
+
+        body.dark-mode .nav-link {
+            color: #e2e8f0;
+        }
+        body.dark-mode .nav-link.active {
+            background-color: #4a5568;
+        }
+        body.dark-mode input, body.dark-mode select, body.dark-mode textarea {
+            background-color: #4a5568;
+            color: #e2e8f0;
+            border-color: #616e7f;
+        }
+        body.dark-mode input::placeholder, body.dark-mode textarea::placeholder {
+            color: #a0aec0;
+        }
+        body.dark-mode .progress-bar-container {
+            background-color: #4a5568;
+        }
+        body.dark-mode .chart-type-btn {
+            background-color: #4a5568;
+            color: #e2e8f0;
+            border-color: #616e7f;
+        }
+        body.dark-mode .chart-type-btn:hover {
+            background-color: #616e7f;
+        }
+        body.dark-mode .chart-type-btn.active {
+            background-color: #10b981; /* Mantém o verde para ativo */
+            color: white;
+            border-color: #059669;
+        }
+        body.dark-mode .popup-content {
+            background-color: #2d3748;
+            color: #e2e8f0;
+        }
+        body.dark-mode .popup-content p {
+            color: #cbd5e0;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Cabeçalho da Aplicação -->
+    <header class="bg-gradient-to-r from-blue-500 to-green-500 text-white p-4 shadow-lg rounded-b-xl">
+        <div class="container flex flex-col items-center"> <!-- Alterado para flex-col e centralizado -->
+            <div class="flex items-center mb-4"> <!-- Contêiner para logo e título -->
+                <img src="ccm.png" alt="Logo CCM" class="h-12 w-12 mr-3 rounded-full"> <!-- Logo adicionada -->
+                <h1 class="text-3xl font-bold">Sustenta Pitanga</h1>
+            </div>
+            <nav id="main-nav" class="hidden w-full flex justify-center"> <!-- Nav centralizada -->
+                <ul class="flex space-x-4">
+                    <li><a class="nav-link text-white" data-target="dashboard">Dashboard</a></li>
+                    <li><a class="nav-link text-white" data-target="reports">Relatórios</a></li>
+                    <li><a class="nav-link text-white" data-target="profile">Perfil</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-grow container mt-8">
+        <!-- Seção de Login/Cadastro -->
+        <section id="login">
+            <div class="card max-w-md mx-auto">
+                <h2 class="text-2xl font-semibold mb-6 text-center text-gray-700">Acesse sua Conta</h2>
+                <form id="loginForm">
+                    <div class="mb-4">
+                        <label for="email" class="block text-gray-700 text-sm font-bold mb-2">E-mail:</label>
+                        <input type="email" id="email" name="email" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400" placeholder="seuemail@exemplo.com" required>
+                    </div>
+                    <div class="mb-6">
+                        <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Senha:</label>
+                        <input type="password" id="password" name="password" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400" placeholder="********" required>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <button type="submit" class="btn-primary w-full">Entrar</button>
+                    </div>
+                    <p class="text-center text-sm text-gray-600 mt-4">Não tem uma conta? <a href="#" id="registerLink" class="text-blue-500 hover:underline">Cadastre-se aqui</a></p>
+                </form>
+            </div>
+        </section>
+
+        <!-- Nova Seção de Cadastro -->
+        <section id="register" class="hidden">
+            <div class="card max-w-md mx-auto">
+                <h2 class="text-2xl font-semibold mb-6 text-center text-gray-700">Crie sua Conta</h2>
+                <form id="registerForm">
+                    <div class="mb-4">
+                        <label for="registerName" class="block text-gray-700 text-sm font-bold mb-2">Nome Completo:</label>
+                        <input type="text" id="registerName" name="registerName" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400" placeholder="Seu nome" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="registerEmail" class="block text-gray-700 text-sm font-bold mb-2">E-mail:</label>
+                        <input type="email" id="registerEmail" name="registerEmail" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400" placeholder="seuemail@exemplo.com" required>
+                    </div>
+                    <div class="mb-6">
+                        <label for="registerPassword" class="block text-gray-700 text-sm font-bold mb-2">Senha:</label>
+                        <input type="password" id="registerPassword" name="registerPassword" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400" placeholder="********" required>
+                    </div>
+                    <div class="mb-6">
+                        <label for="confirmPassword" class="block text-gray-700 text-sm font-bold mb-2">Confirmar Senha:</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400" placeholder="********" required>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <button type="submit" class="btn-primary w-full">Cadastrar</button>
+                    </div>
+                    <p class="text-center text-sm text-gray-600 mt-4">Já tem uma conta? <a href="#" id="backToLoginLink" class="text-blue-500 hover:underline">Faça login aqui</a></p>
+                </form>
+            </div>
+        </section>
+
+        <!-- Seção do Dashboard -->
+        <section id="dashboard" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Card de Desperdício por Hectare -->
+            <div class="card">
+                <h3 class="text-xl font-semibold mb-4 text-gray-800 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Desperdício por Hectare
+                </h3>
+                <p class="text-4xl font-bold text-red-600 mb-4">15%</p>
+                <div class="progress-bar-container">
+                    <div class="progress-bar progress-red" style="width: 75%;">75% da meta</div>
+                </div>
+                <p class="text-sm text-gray-600 mt-2">Meta: 5% de desperdício. <span class="font-semibold">Ação necessária!</span></p>
+            </div>
+
+            <!-- Card de Adubos Utilizados -->
+            <div class="card">
+                <h3 class="text-xl font-semibold mb-4 text-gray-800 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21H3.737a2 2 0 01-1.789-2.894l3.5-7A2 2 0 017.263 10H10m6 0H14m0 0V9.333a2 2 0 00-2-2H9.333a2 2 0 00-2 2v1.333m0 0H7m0 0h6.5M7 15h3m0 0h3"></path></svg>
+                    Adubos Utilizados
+                </h3>
+                <p class="text-4xl font-bold text-green-600 mb-4">800 kg/ha</p>
+                <div class="progress-bar-container">
+                    <div class="progress-bar progress-green" style="width: 80%;">80% do recomendado</div>
+                </div>
+                <p class="text-sm text-gray-600 mt-2">Recomendado: 1000 kg/ha. <span class="font-semibold">Bom uso!</span></p>
+            </div>
+
+            <!-- Card de Clima Atual (Atualizado para clima em tempo real) -->
+            <div class="card">
+                <h3 class="text-xl font-semibold mb-4 text-gray-800 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 00-2.783-8.956L12 9V6a2 2 0 10-4 0v.333a.834.834 0 01-.166.567L6.2 9.5a1 1 0 00-.2.6v1.4a1 1 0 00.2.6l1.434 1.434a.834.834 0 01.567.166H7a4 4 0 00-4 4z"></path></svg>
+                    Clima Atual
+                </h3>
+                <div id="weatherInfo">
+                    <p class="text-lg text-gray-600">Carregando clima...</p>
+                </div>
+            </div>
+
+            <!-- Card de Alertas Úteis -->
+            <div class="card lg:col-span-2">
+                <h3 class="text-xl font-semibold mb-4 text-gray-800 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    Alertas Úteis
+                </h3>
+                <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                    <li><span class="font-semibold text-red-600">Alerta:</span> Amanhã: CHUVA FORTE - Não irrigue!</li>
+                    <li><span class="font-semibold text-orange-600">Recomendação:</span> Reduza a irrigação de água em 4 litros por hectare.</li>
+                    <li><span class="font-semibold text-green-600">Notificação:</span> Sensoriamento detectou melhora na qualidade do solo. +10 pontos!</li>
+                </ul>
+            </div>
+
+            <!-- Card de Dicas de Sustentabilidade -->
+            <div class="card">
+                <h3 class="text-xl font-semibold mb-4 text-gray-800 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 17v5m6.447-16.447L13.553 3.553M10.24 7.516l-2.924 2.924m7.34 0l2.924 2.924M3 10.5h5.5m-1.5 3.5h-5.5M19 10.5h-5.5m1.5 3.5h5.5M12 16a4 4 0 100-8 4 4 0 000 8z"></path></svg>
+                    Dicas de Sustentabilidade
+                </h3>
+                <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                    <li>Considere a rotação de culturas para melhorar a saúde do solo.</li>
+                    <li>Utilize sistemas de irrigação por gotejamento para otimizar o uso da água.</li>
+                    <li>Monitore a saúde das plantas regularmente para identificar problemas precocemente.</li>
+                </ul>
+            </div>
+
+            <!-- Novo Card: Coleta de Dados Interativa -->
+            <div class="card lg:col-span-3">
+                <h3 class="text-xl font-semibold mb-4 text-gray-800 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Coleta de Dados
+                </h3>
+                <div class="space-y-6">
+                    <!-- Seção de Dados Manuais -->
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-800 flex items-center mb-3">
+                            <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            Dados Manuais
+                        </h4>
+                        <div class="mb-4">
+                            <label for="dailyWaterInput" class="block text-gray-700 text-sm font-bold mb-2">Gasto de Água Diário (litros):</label>
+                            <input type="number" id="dailyWaterInput" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400" placeholder="Ex: 5000">
+                        </div>
+                        <div class="mb-4">
+                            <label for="fertilizerUseInput" class="block text-gray-700 text-sm font-bold mb-2">Uso de Fertilizantes (kg):</label>
+                            <input type="number" id="fertilizerUseInput" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400" placeholder="Ex: 200">
+                        </div>
+                        <div class="mb-4">
+                            <label for="soilObservationInput" class="block text-gray-700 text-sm font-bold mb-2">Observações do Solo:</label>
+                            <textarea id="soilObservationInput" rows="3" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400" placeholder="Ex: Solo úmido, boa drenagem."></textarea>
+                        </div>
+                        <button id="saveManualDataBtn" class="btn-primary">Salvar Dados Manuais</button>
+                        <p id="manualSaveMessage" class="text-sm mt-2 text-green-600 hidden">Dados salvos com sucesso!</p>
+                    </div>
+
+                    <!-- Seção de Sensores Caseiros -->
+                    <div class="mt-8">
+                        <h4 class="text-lg font-semibold text-gray-800 flex items-center mb-3">
+                            <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-1.25-3M15 10V5a3 3 0 00-3-3l-4 9v11h12V9h-5z"></path></svg>
+                            Sensores Caseiros (Simulado)
+                        </h4>
+                        <p class="text-gray-700 mb-4">Simule a leitura de um medidor de água adaptado com Arduino. Em uma aplicação real, esses dados seriam enviados automaticamente.</p>
+                        <div class="mb-4">
+                            <label for="waterMeterInput" class="block text-gray-700 text-sm font-bold mb-2">Leitura do Medidor de Água (litros/min):</label>
+                            <input type="number" id="waterMeterInput" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400" placeholder="Ex: 15.5" step="0.1">
+                        </div>
+                        <button id="sendSensorDataBtn" class="btn-secondary">Enviar Leitura do Sensor</button>
+                        <p id="sensorSaveMessage" class="text-sm mt-2 text-green-600 hidden">Leitura enviada!</p>
+                        <p class="text-sm text-gray-600 mt-4">Última Leitura do Sensor: <span id="lastSensorReadingDisplay" class="font-semibold">N/A</span></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Relatórios Inteligentes -->
+        <section id="reports" class="hidden">
+            <div class="card">
+                <h2 class="text-2xl font-semibold mb-6 text-center text-gray-700">Relatórios Inteligentes</h2>
+                <div class="space-y-6">
+                    <!-- Relatório Mensal de Desperdício -->
+                    <div id="monthlyReport">
+                        <h3 class="text-xl font-semibold mb-3 text-gray-800 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-5m3 5v-1m3 1v-3m4-6V6a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h2m4 0h6m-6 0h-2M9 16l3-3 3 3"></path></svg>
+                            Relatório Mensal - Junho 2025
+                        </h3>
+                        <p class="text-lg text-gray-700 mb-2">Impacto Econômico: <span class="font-bold text-green-600">Economia de R$ 2.500</span> em fertilizantes.</p>
+                        <ul class="list-disc pl-5 text-gray-600">
+                            <li>Desperdício médio: 8% (redução de 7% em relação ao mês anterior).</li>
+                            <li>Uso de água: 1200 litros/hectare (dentro da meta).</li>
+                            <li>Qualidade do solo: Melhoria de 15% nos indicadores.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Relatório Sob Demanda (Exemplo) -->
+                    <div>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-800 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 112-2h2a2 2 0 112 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                            Relatório Personalizado - Uso de Pesticidas (Maio 2025)
+                        </h3>
+                        <p class="text-lg text-gray-700 mb-2">Impacto Ambiental: <span class="font-bold text-red-600">Uso acima do recomendado em 10%</span>.</p>
+                        <ul class="list-disc pl-5 text-gray-600">
+                            <li>Pesticida X: 5% acima do limite seguro.</li>
+                            <li>Recomendação: Avaliar alternativas biológicas para a próxima safra.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Botões para seleção do tipo de gráfico -->
+                    <div class="mt-8 text-center">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-800">Tipo de Gráfico</h3>
+                        <div class="flex flex-wrap justify-center gap-2 mb-6" id="chartTypeButtons">
+                            <button class="chart-type-btn active" data-chart-type="pie">Pizza</button>
+                            <button class="chart-type-btn" data-chart-type="bar-column">Coluna</button>
+                            <button class="chart-type-btn" data-chart-type="line">Linhas</button>
+                            <button class="chart-type-btn" data-chart-type="doughnut">Rosca</button>
+                            <button class="chart-type-btn" data-chart-type="bar-horizontal">Barras</button>
+                            <button class="chart-type-btn" data-chart-type="radar">Radar</button>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico -->
+                    <div class="mt-8">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-800 text-center">Desperdício vs. Uso Eficiente (por Hectare)</h3>
+                        <div class="w-full max-w-sm mx-auto">
+                            <canvas id="myChart"></canvas> <!-- Renomeado para myChart para evitar conflito com myPieChart -->
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-8">
+                        <button id="generatePdfBtn" class="btn-secondary">Gerar Relatório em PDF</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Perfil -->
+        <section id="profile" class="hidden">
+            <div class="card max-w-2xl mx-auto">
+                <h2 class="text-2xl font-semibold mb-6 text-center text-gray-700">Meu Perfil</h2>
+                <div class="flex flex-col md:flex-row items-center md:items-start gap-8">
+                    <!-- Foto de Perfil -->
+                    <div class="flex-shrink-0">
+                        <img src="https://placehold.co/150x150/a7f3d0/065f46?text=Foto" alt="Foto de Perfil" class="w-36 h-36 rounded-full object-cover border-4 border-green-400 shadow-md">
+                        <button class="mt-4 w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors">Alterar Foto</button>
+                    </div>
+
+                    <!-- Dados do Perfil -->
+                    <div class="flex-grow w-full">
+                        <div class="mb-4">
+                            <label for="profileName" class="block text-gray-700 text-sm font-bold mb-2">Nome:</label>
+                            <input type="text" id="profileName" value="João Silva" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400">
+                        </div>
+                        <div class="mb-4">
+                            <label for="profileEmail" class="block text-gray-700 text-sm font-bold mb-2">E-mail:</label>
+                            <input type="email" id="profileEmail" value="joao.silva@exemplo.com" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400" disabled>
+                        </div>
+                        <div class="mb-4">
+                            <label for="darkModeToggle" class="block text-gray-700 text-sm font-bold mb-2">Modo de Exibição:</label>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="darkModeToggle" class="mr-2 h-5 w-5 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                <label for="darkModeToggle" class="text-gray-700">Ativar Modo Escuro</label>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="userData" class="block text-gray-700 text-sm font-bold mb-2">Dados do Usuário:</label>
+                            <textarea id="userData" rows="3" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400">CPF: XXX.XXX.XXX-XX&#10;Telefone: (XX) XXXX-XXXX</textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label for="additionalInfo" class="block text-gray-700 text-sm font-bold mb-2">Observações:</label>
+                            <textarea id="additionalInfo" rows="3" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400" placeholder="Informações adicionais sobre o usuário..."></textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label for="cooperative" class="block text-gray-700 text-sm font-bold mb-2">Cooperativa:</label>
+                            <input type="text" id="cooperative" value="Cooperativa Agrícola do Sul" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400">
+                        </div>
+                        <div class="mb-4">
+                            <label for="farmData" class="block text-gray-700 text-sm font-bold mb-2">Dados da Fazenda:</label>
+                            <textarea id="farmData" rows="4" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400">Nome da Fazenda: Fazenda Esperança&#10;Área Total: 500 hectares&#10;Culturas Principais: Soja, Milho</textarea>
+                        </div>
+                        <div class="text-right">
+                            <button class="btn-primary">Salvar Alterações</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Pop-up de Permissão de Localização -->
+    <div id="locationPermissionPopup" class="popup-overlay hidden">
+        <div class="popup-content">
+            <h3 class="text-xl font-semibold mb-4 text-gray-800">Permissão de Localização</h3>
+            <p class="text-gray-700">O Sustenta Pitanga gostaria de acessar sua localização para fornecer dados climáticos mais precisos.</p>
+            <div class="popup-buttons">
+                <button class="btn-allow-always" data-permission="always">Permitir o tempo todo</button>
+                <button class="btn-allow-once" data-permission="once">Permitir dessa vez</button>
+                <button class="btn-deny" data-permission="deny">Não permitir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rodapé da Aplicação -->
+    <footer class="bg-gray-800 text-white p-4 mt-8 rounded-t-xl">
+        <div class="container text-center text-sm">
+            &copy; 2025 Sustenta Pitanga. Todos os direitos reservados.
+        </div>
+    </footer>
+
+    <!-- Script JavaScript -->
+    <script>
+        let myChartInstance = null; // Variável para armazenar a instância do gráfico
+        // Substitua "YOUR_OPENWEATHERMAP_API_KEY" pela sua chave da API OpenWeatherMap
+        const WEATHER_API_KEY = "YOUR_OPENWEATHERMAP_API_KEY"; 
+        const WEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather";
+
+        // Função para alternar a visibilidade das seções
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('section');
+            sections.forEach(section => {
+                section.classList.add('hidden'); // Esconde todas as seções
+            });
+            document.getElementById(sectionId).classList.remove('hidden'); // Mostra a seção desejada
+
+            // Atualiza o estado ativo na navegação
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+            // Ativa o link de navegação apenas se não for a seção de login
+            if (sectionId !== 'login' && sectionId !== 'register') { // Adicionado 'register'
+                const activeLink = document.querySelector(`.nav-link[data-target="${sectionId}"]`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+            }
+
+            // Controla a visibilidade da barra de navegação principal
+            const mainNav = document.getElementById('main-nav');
+            if (sectionId === 'login' || sectionId === 'register') { // Adicionado 'register'
+                mainNav.classList.add('hidden');
+            } else {
+                mainNav.classList.remove('hidden');
+            }
+        }
+
+        // Função para inicializar ou atualizar o gráfico
+        function initChart(chartType = 'pie') {
+            const ctx = document.getElementById('myChart');
+
+            // Destrói a instância anterior do gráfico se existir
+            if (myChartInstance) {
+                myChartInstance.destroy();
+            }
+
+            let chartConfig = {};
+            const data = {
+                labels: ['Desperdício Atual (15%)', 'Uso Eficiente (85%)'],
+                datasets: [{
+                    data: [15, 85],
+                    backgroundColor: [
+                        '#ef4444', // Vermelho para desperdício
+                        '#22c55e'  // Verde para uso eficiente
+                    ],
+                    borderColor: '#ffffff',
+                    borderWidth: 2,
+                }]
+            };
+
+            const barData = {
+                labels: ['Desperdício', 'Uso Eficiente'],
+                datasets: [{
+                    label: 'Percentual',
+                    data: [15, 85],
+                    backgroundColor: [
+                        '#ef4444',
+                        '#22c55e'
+                    ],
+                    borderColor: '#ffffff',
+                    borderWidth: 1,
+                }]
+            };
+
+            const radarData = {
+                labels: ['Desperdício', 'Adubos', 'Água', 'Solo'],
+                datasets: [{
+                    label: 'Métricas',
+                    data: [15, 80, 70, 85], // Dados simulados para radar
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    borderColor: '#3b82f6',
+                    borderWidth: 1,
+                    pointBackgroundColor: '#3b82f6',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#3b82f6'
+                }]
+            };
+
+            switch (chartType) {
+                case 'pie':
+                case 'doughnut': // Rosca
+                    chartConfig = {
+                        type: chartType,
+                        data: data,
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: {
+                                        font: {
+                                            size: 14
+                                        }
+                                    }
+                                },
+                                title: {
+                                    display: false,
+                                }
+                            }
+                        }
+                    };
+                    break;
+                case 'bar-column': // Coluna
+                    chartConfig = {
+                        type: 'bar',
+                        data: barData,
+                        options: {
+                            responsive: true,
+                            indexAxis: 'x', // Barras verticais (colunas)
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                title: {
+                                    display: false,
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100
+                                }
+                            }
+                        }
+                    };
+                    break;
+                case 'bar-horizontal': // Barras
+                    chartConfig = {
+                        type: 'bar',
+                        data: barData,
+                        options: {
+                            responsive: true,
+                            indexAxis: 'y', // Barras horizontais
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                title: {
+                                    display: false,
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    max: 100
+                                }
+                            }
+                        }
+                    };
+                    break;
+                case 'line':
+                    chartConfig = {
+                        type: 'line',
+                        data: {
+                            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                            datasets: [{
+                                label: 'Desperdício Mensal (%)',
+                                data: [20, 18, 15, 12, 10, 8], // Dados simulados
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                title: {
+                                    display: false,
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 25
+                                }
+                            }
+                        }
+                    };
+                    break;
+                case 'radar':
+                    chartConfig = {
+                        type: 'radar',
+                        data: radarData,
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                title: {
+                                    display: false,
+                                }
+                            },
+                            scales: {
+                                r: {
+                                    angleLines: {
+                                        display: false
+                                    },
+                                    suggestedMin: 0,
+                                    suggestedMax: 100
+                                }
+                            }
+                        }
+                    };
+                    break;
+                default:
+                    // Fallback para pizza se o tipo não for reconhecido
+                    chartConfig = {
+                        type: 'pie',
+                        data: data,
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                title: {
+                                    display: false,
+                                }
+                            }
+                        }
+                    };
+                    break;
+            }
+
+            myChartInstance = new Chart(ctx, chartConfig);
+        }
+
+        // Função para exibir o pop-up de permissão de localização
+        function showLocationPermissionPopup() {
+            document.getElementById('locationPermissionPopup').classList.remove('hidden');
+        }
+
+        // Função para esconder o pop-up de permissão de localização
+        function hideLocationPermissionPopup() {
+            document.getElementById('locationPermissionPopup').classList.add('hidden');
+        }
+
+        // Função para obter o clima em tempo real
+        async function getRealtimeWeather(latitude, longitude) {
+            const weatherInfoDiv = document.getElementById('weatherInfo');
+            weatherInfoDiv.innerHTML = '<p class="text-lg text-gray-600">Buscando dados climáticos...</p>';
+
+            // Verifica se a API Key foi fornecida
+            if (WEATHER_API_KEY === "YOUR_OPENWEATHERMAP_API_KEY" || !WEATHER_API_KEY) {
+                weatherInfoDiv.innerHTML = '<p class="text-lg text-red-600">Para obter dados climáticos reais, por favor, insira sua chave da API OpenWeatherMap no código.</p>';
+                console.warn("Chave da API OpenWeatherMap não configurada. Usando dados simulados.");
+                // Usar dados simulados se a chave da API não estiver configurada
+                simulateWeatherDisplay();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${WEATHER_API_URL}?lat=${latitude}&lon=${longitude}&appid=${WEATHER_API_KEY}&units=metric&lang=pt_br`);
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+                }
+                const data = await response.json();
+
+                const temp = data.main.temp.toFixed(1);
+                const description = data.weather[0].description;
+                const humidity = data.main.humidity;
+                const locationName = data.name;
+                const iconCode = data.weather[0].icon;
+                const iconUrl = `https://openweathermap.org/img/wn/${iconCode}.png`;
+
+                weatherInfoDiv.innerHTML = `
+                    <p class="text-4xl font-bold text-blue-600 mb-2">${temp}°C <img src="${iconUrl}" alt="${description}" class="inline-block w-12 h-12 -mt-2"> <span class="text-xl font-normal text-gray-500">${description}</span></p>
+                    <p class="text-sm text-gray-600 mt-2">Local: ${locationName}</p>
+                    <p class="text-sm text-gray-600 mt-1">Umidade: ${humidity}%</p>
+                    <p class="text-sm text-gray-600 mt-1">Previsão para amanhã: <span class="font-semibold">Chuva forte</span></p>
+                `;
+            } catch (error) {
+                console.error("Erro ao obter dados climáticos da API:", error);
+                weatherInfoDiv.innerHTML = `<p class="text-lg text-red-600">Erro ao carregar clima: ${error.message}. Usando dados simulados.</p>`;
+                simulateWeatherDisplay(); // Fallback para dados simulados em caso de erro da API
+            }
+        }
+
+        // Função para exibir dados climáticos simulados
+        function simulateWeatherDisplay() {
+            const weatherInfoDiv = document.getElementById('weatherInfo');
+            const simulatedWeatherData = {
+                name: "Fazenda Exemplo (Simulado)",
+                main: {
+                    temp: (20 + Math.random() * 10).toFixed(1), // Temperatura entre 20 e 30
+                    humidity: (60 + Math.random() * 20).toFixed(0) // Umidade entre 60 e 80
+                },
+                weather: [{
+                    description: Math.random() > 0.5 ? "Céu Limpo" : "Nuvens Dispersas",
+                    icon: Math.random() > 0.5 ? "01d" : "03d" // Ícones simulados
+                }]
+            };
+
+            const temp = simulatedWeatherData.main.temp;
+            const description = simulatedWeatherData.weather[0].description;
+            const humidity = simulatedWeatherData.main.humidity;
+            const locationName = simulatedWeatherData.name;
+            const iconCode = simulatedWeatherData.weather[0].icon;
+            const iconUrl = `https://openweathermap.org/img/wn/${iconCode}.png`; // Ícone do OpenWeatherMap
+
+            weatherInfoDiv.innerHTML = `
+                <p class="text-4xl font-bold text-blue-600 mb-2">${temp}°C <img src="${iconUrl}" alt="${description}" class="inline-block w-12 h-12 -mt-2"> <span class="text-xl font-normal text-gray-500">${description}</span></p>
+                <p class="text-sm text-gray-600 mt-2">Local: ${locationName}</p>
+                <p class="text-sm text-gray-600 mt-1">Umidade: ${humidity}%</p>
+                <p class="text-sm text-gray-600 mt-1">Previsão para amanhã: <span class="font-semibold">Chuva forte</span></p>
+            `;
+        }
+
+
+        // Lidar com a permissão de localização
+        function handleLocationPermission(permissionType) {
+            hideLocationPermissionPopup();
+            if (permissionType === 'deny') {
+                document.getElementById('weatherInfo').innerHTML = '<p class="text-lg text-red-600">Localização não permitida. O clima exibido será genérico.</p>';
+                localStorage.setItem('locationPermission', 'denied');
+                simulateWeatherDisplay(); // Exibe dados simulados se a localização for negada
+            } else {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const lat = position.coords.latitude;
+                            const lon = position.coords.longitude;
+                            getRealtimeWeather(lat, lon);
+                            if (permissionType === 'always') {
+                                localStorage.setItem('locationPermission', 'granted');
+                            } else { // 'once'
+                                localStorage.removeItem('locationPermission'); // Não persiste a permissão
+                            }
+                        },
+                        (error) => {
+                            let errorMessage = "Não foi possível obter a localização. Verifique as configurações do seu navegador.";
+                            switch (error.code) {
+                                case error.PERMISSION_DENIED:
+                                    errorMessage = "Permissão de localização negada pelo usuário.";
+                                    break;
+                                case error.POSITION_UNAVAILABLE:
+                                    errorMessage = "Informações de localização indisponíveis.";
+                                    break;
+                                case error.TIMEOUT:
+                                    errorMessage = "Tempo limite para obter a localização esgotado.";
+                                    break;
+                                default:
+                                    errorMessage = `Erro desconhecido ao obter localização: ${error.message}`;
+                                    break;
+                            }
+                            console.error("Erro ao obter localização:", errorMessage, error);
+                            document.getElementById('weatherInfo').innerHTML = `<p class="text-lg text-red-600">${errorMessage} O clima exibido será genérico.</p>`;
+                            localStorage.setItem('locationPermission', 'denied'); // Marca como negado para evitar o pop-up novamente
+                            simulateWeatherDisplay(); // Fallback para dados simulados em caso de erro
+                        }
+                    );
+                } else {
+                    document.getElementById('weatherInfo').innerHTML = '<p class="text-lg text-red-600">Geolocalização não é suportada pelo seu navegador. O clima exibido será genérico.</p>';
+                    localStorage.setItem('locationPermission', 'denied'); // Marca como negado
+                    simulateWeatherDisplay(); // Exibe dados simulados se a geolocalização não for suportada
+                }
+            }
+        }
+
+        // Função para aplicar ou remover o modo escuro
+        function applyDarkMode(isDarkMode) {
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+        }
+
+        // Funções para manipulação de dados manuais
+        function saveManualData() {
+            const dailyWater = document.getElementById('dailyWaterInput').value;
+            const fertilizerUse = document.getElementById('fertilizerUseInput').value;
+            const soilObservation = document.getElementById('soilObservationInput').value;
+
+            localStorage.setItem('dailyWater', dailyWater);
+            localStorage.setItem('fertilizerUse', fertilizerUse);
+            localStorage.setItem('soilObservation', soilObservation);
+
+            const messageElement = document.getElementById('manualSaveMessage');
+            messageElement.classList.remove('hidden');
+            setTimeout(() => {
+                messageElement.classList.add('hidden');
+            }, 3000);
+        }
+
+        function loadManualData() {
+            document.getElementById('dailyWaterInput').value = localStorage.getItem('dailyWater') || '';
+            document.getElementById('fertilizerUseInput').value = localStorage.getItem('fertilizerUse') || '';
+            document.getElementById('soilObservationInput').value = localStorage.getItem('soilObservation') || '';
+        }
+
+        // Funções para manipulação de dados de sensores simulados
+        function sendSensorData() {
+            const waterMeterReading = document.getElementById('waterMeterInput').value;
+            localStorage.setItem('lastSensorReading', waterMeterReading);
+            document.getElementById('lastSensorReadingDisplay').textContent = waterMeterReading ? `${waterMeterReading} litros/min` : 'N/A';
+
+            const messageElement = document.getElementById('sensorSaveMessage');
+            messageElement.classList.remove('hidden');
+            setTimeout(() => {
+                messageElement.classList.add('hidden');
+            }, 3000);
+        }
+
+        function loadSensorData() {
+            const lastReading = localStorage.getItem('lastSensorReading');
+            document.getElementById('lastSensorReadingDisplay').textContent = lastReading ? `${lastReading} litros/min` : 'N/A';
+        }
+
+
+        // Adiciona listeners de evento para os links de navegação
+        document.addEventListener('DOMContentLoaded', () => {
+            // Carrega a preferência de modo escuro do localStorage
+            const savedDarkMode = localStorage.getItem('darkMode');
+            if (savedDarkMode === 'enabled') {
+                applyDarkMode(true);
+                document.getElementById('darkModeToggle').checked = true;
+            } else {
+                applyDarkMode(false);
+                document.getElementById('darkModeToggle').checked = false;
+            }
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const targetId = event.target.dataset.target;
+                    showSection(targetId);
+                    // Se a seção de relatórios for mostrada, inicializa o gráfico
+                    if (targetId === 'reports') {
+                        initChart('pie'); // Inicia com gráfico de pizza por padrão
+                        // Ativa o botão de pizza
+                        document.querySelectorAll('.chart-type-btn').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        document.querySelector('.chart-type-btn[data-chart-type="pie"]').classList.add('active');
+                    } else if (targetId === 'dashboard') {
+                        // Ao entrar no dashboard, verifica a permissão de localização
+                        const permissionStatus = localStorage.getItem('locationPermission');
+                        if (!permissionStatus) { // Se ainda não houver uma decisão
+                            showLocationPermissionPopup();
+                        } else if (permissionStatus === 'granted') {
+                            // Se já foi concedida, tenta obter a localização
+                            if (navigator.geolocation) {
+                                navigator.geolocation.getCurrentPosition(
+                                    (position) => {
+                                        const lat = position.coords.latitude;
+                                        const lon = position.coords.longitude;
+                                        getRealtimeWeather(lat, lon);
+                                    },
+                                    (error) => {
+                                        let errorMessage = "Não foi possível obter a localização. Verifique as configurações do seu navegador.";
+                                        switch (error.code) {
+                                            case error.PERMISSION_DENIED:
+                                                errorMessage = "Permissão de localização negada pelo usuário.";
+                                                break;
+                                            case error.POSITION_UNAVAILABLE:
+                                                errorMessage = "Informações de localização indisponíveis.";
+                                                break;
+                                            case error.TIMEOUT:
+                                                errorMessage = "Tempo limite para obter a localização esgotado.";
+                                                break;
+                                            default:
+                                                errorMessage = `Erro desconhecido ao obter localização: ${error.message}`;
+                                                break;
+                                        }
+                                        console.error("Erro ao obter localização:", errorMessage, error);
+                                        document.getElementById('weatherInfo').innerHTML = `<p class="text-lg text-red-600">${errorMessage} O clima exibido será genérico.</p>`;
+                                        simulateWeatherDisplay(); // Fallback para dados simulados em caso de erro
+                                    }
+                                );
+                            } else {
+                                document.getElementById('weatherInfo').innerHTML = '<p class="text-lg text-red-600">Geolocalização não é suportada pelo seu navegador. O clima exibido será genérico.</p>';
+                                simulateWeatherDisplay(); // Exibe dados simulados se a geolocalização não for suportada
+                            }
+                        } else { // permissionStatus === 'denied'
+                            document.getElementById('weatherInfo').innerHTML = '<p class="text-lg text-red-600">Localização não permitida. O clima exibido será genérico.</p>';
+                            simulateWeatherDisplay(); // Exibe dados simulados se a localização foi negada anteriormente
+                        }
+                        loadManualData(); // Carrega dados manuais ao entrar no dashboard
+                        loadSensorData(); // Carrega dados do sensor ao entrar no dashboard
+                    }
+                });
+            });
+
+            // Mostra a seção de login por padrão ao carregar a página
+            // E garante que a navegação principal esteja oculta inicialmente
+            showSection('login'); 
+
+            // Lógica de simulação de login
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', (event) => {
+                    event.preventDefault(); // Impede o envio padrão do formulário
+                    // Aqui você adicionaria a lógica de autenticação real
+                    // Por enquanto, apenas simula o login e mostra o dashboard
+                    console.log('Tentativa de login...');
+                    // Simula um atraso para "processar" o login
+                    setTimeout(() => {
+                        showSection('dashboard'); // Redireciona para o dashboard após o "login"
+                    }, 500);
+                });
+            }
+
+            // Lógica para gerar PDF
+            const generatePdfBtn = document.getElementById('generatePdfBtn');
+            if (generatePdfBtn) {
+                generatePdfBtn.addEventListener('click', () => {
+                    // Importa jsPDF do objeto global window
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+
+                    // Título do relatório
+                    doc.setFontSize(22);
+                    doc.text("Relatório Sustenta Pitanga", 105, 20, null, null, "center");
+
+                    // Adiciona a data atual
+                    const today = new Date();
+                    const dateString = today.toLocaleDateString('pt-BR', {
+                        year: 'numeric', month: 'long', day: 'numeric'
+                    });
+                    doc.setFontSize(10);
+                    doc.text(`Gerado em: ${dateString}`, 105, 28, null, null, "center");
+
+                    // Conteúdo do Relatório Mensal (simulado)
+                    doc.setFontSize(16);
+                    doc.text("Relatório Mensal - Junho 2025", 20, 40);
+
+                    doc.setFontSize(12);
+                    doc.text("Impacto Econômico: Economia de R$ 2.500 em fertilizantes.", 20, 50);
+                    doc.text("- Desperdício médio: 8% (redução de 7% em relação ao mês anterior).", 20, 60);
+                    doc.text("- Uso de água: 1200 litros/hectare (dentro da meta).", 20, 70);
+                    doc.text("- Qualidade do solo: Melhoria de 15% nos indicadores.", 20, 80);
+
+                    // Conteúdo do Relatório Personalizado (simulado)
+                    doc.setFontSize(16);
+                    doc.text("Relatório Personalizado - Uso de Pesticidas (Maio 2025)", 20, 100);
+
+                    doc.setFontSize(12);
+                    doc.text("Impacto Ambiental: Uso acima do recomendado em 10%.", 20, 110);
+                    doc.text("- Pesticida X: 5% acima do limite seguro.", 20, 120);
+                    doc.text("- Recomendação: Avaliar alternativas biológicas para a próxima safra.", 20, 130);
+
+                    // Salva o PDF
+                    doc.save("Relatorio_Sustenta_Pitanga.pdf");
+                });
+            }
+
+            // Adiciona listeners para os botões de tipo de gráfico
+            const chartTypeButtons = document.getElementById('chartTypeButtons');
+            if (chartTypeButtons) {
+                chartTypeButtons.addEventListener('click', (event) => {
+                    const target = event.target;
+                    if (target.tagName === 'BUTTON') {
+                        const chartType = target.dataset.chartType;
+
+                        // Remove a classe 'active' de todos os botões
+                        document.querySelectorAll('.chart-type-btn').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        // Adiciona a classe 'active' ao botão clicado
+                        target.classList.add('active');
+
+                        initChart(chartType);
+                    }
+                });
+            }
+
+            // Adiciona listeners para os botões do pop-up de localização
+            const locationPermissionPopup = document.getElementById('locationPermissionPopup');
+            if (locationPermissionPopup) {
+                locationPermissionPopup.addEventListener('click', (event) => {
+                    const target = event.target;
+                    if (target.tagName === 'BUTTON' && target.dataset.permission) {
+                        handleLocationPermission(target.dataset.permission);
+                    }
+                });
+            }
+
+            // Listener para o toggle do modo escuro
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('change', (event) => {
+                    if (event.target.checked) {
+                        applyDarkMode(true);
+                        localStorage.setItem('darkMode', 'enabled');
+                    } else {
+                        applyDarkMode(false);
+                        localStorage.setItem('darkMode', 'disabled');
+                    }
+                });
+            }
+
+            // Adiciona listeners para os botões de dados manuais e sensores
+            document.getElementById('saveManualDataBtn').addEventListener('click', saveManualData);
+            document.getElementById('sendSensorDataBtn').addEventListener('click', sendSensorData);
+
+            // Adiciona listener para o link "Cadastre-se aqui"
+            const registerLink = document.getElementById('registerLink');
+            if (registerLink) {
+                registerLink.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    showSection('register');
+                });
+            }
+
+            // Adiciona listener para o link "Faça login aqui" na tela de cadastro
+            const backToLoginLink = document.getElementById('backToLoginLink');
+            if (backToLoginLink) {
+                backToLoginLink.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    showSection('login');
+                });
+            }
+
+            // Lógica de simulação de cadastro
+            const registerForm = document.getElementById('registerForm');
+            if (registerForm) {
+                registerForm.addEventListener('submit', (event) => {
+                    event.preventDefault();
+                    const name = document.getElementById('registerName').value;
+                    const email = document.getElementById('registerEmail').value;
+                    const password = document.getElementById('registerPassword').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+
+                    if (password !== confirmPassword) {
+                        alert('As senhas não coincidem!'); // Usando alert para simplificar a simulação
+                        return;
+                    }
+
+                    // Simulação de registro bem-sucedido
+                    alert(`Cadastro de ${name} com e-mail ${email} realizado com sucesso!`); // Usando alert para simplificar
+                    showSection('login'); // Volta para a tela de login após o cadastro
+                });
+            }
+        });
+    </script>
+</body>
+</html>
