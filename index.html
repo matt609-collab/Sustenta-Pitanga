@@ -4,14 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sustenta Pitanga</title>
-    <!-- Inclui o Tailwind CSS CDN para estilização rápida e responsiva -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inclui a biblioteca jsPDF para geração de PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- Inclui a biblioteca Chart.js para gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Estilos CSS -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -209,17 +205,45 @@
         body.dark-mode .popup-content p {
             color: #cbd5e0;
         }
+        /* Estilo para mensagens de erro/sucesso */
+        .message-box {
+            background-color: #fefcbf; /* Amarelo claro */
+            border: 1px solid #fbd38d;
+            color: #9c4221; /* Marrom escuro */
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.375rem;
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .message-box.success {
+            background-color: #d1fae5; /* Verde claro */
+            border-color: #34d399;
+            color: #065f46; /* Verde escuro */
+        }
+        .message-box.error {
+            background-color: #fee2e2; /* Vermelho claro */
+            border-color: #ef4444;
+            color: #991b1b; /* Vermelho escuro */
+        }
+        .message-box.info { /* Novo estilo para mensagens de informação */
+            background-color: #bfdbfe; /* Azul claro */
+            border-color: #60a5fa;
+            color: #1e40af; /* Azul escuro */
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
-    <!-- Cabeçalho da Aplicação -->
-    <header class="bg-gradient-to-r from-blue-500 to-green-500 text-white p-4 shadow-lg rounded-b-xl">
-        <div class="container flex flex-col items-center"> <!-- Alterado para flex-col e centralizado -->
-            <div class="flex items-center mb-4"> <!-- Contêiner para logo e título -->
-                <img src="ccm.png" alt="Logo CCM" class="h-12 w-12 mr-3 rounded-full"> <!-- Logo adicionada -->
+    <header class="bg-gradient-to-r from-blue-500 to-green-500 text-white p-4 shadow-lg rounded-b-xl relative">
+        <div class="container flex items-center justify-center h-full">
+            <!-- Logo and Title (centered) -->
+            <div class="flex items-center">
+                <img src="ccm.png" alt="Logo CCM" class="h-12 w-12 mr-3 rounded-full">
                 <h1 class="text-3xl font-bold">Sustenta Pitanga</h1>
             </div>
-            <nav id="main-nav" class="hidden w-full flex justify-center"> <!-- Nav centralizada -->
+
+            <!-- Navigation buttons (positioned absolutely to the right) -->
+            <nav id="main-nav" class="hidden absolute right-4 top-1/2 -translate-y-1/2">
                 <ul class="flex space-x-4">
                     <li><a class="nav-link text-white" data-target="dashboard">Dashboard</a></li>
                     <li><a class="nav-link text-white" data-target="reports">Relatórios</a></li>
@@ -229,9 +253,7 @@
         </div>
     </header>
 
-    <!-- Conteúdo Principal -->
     <main class="flex-grow container mt-8">
-        <!-- Seção de Login/Cadastro -->
         <section id="login">
             <div class="card max-w-md mx-auto">
                 <h2 class="text-2xl font-semibold mb-6 text-center text-gray-700">Acesse sua Conta</h2>
@@ -248,11 +270,11 @@
                         <button type="submit" class="btn-primary w-full">Entrar</button>
                     </div>
                     <p class="text-center text-sm text-gray-600 mt-4">Não tem uma conta? <a href="#" id="registerLink" class="text-blue-500 hover:underline">Cadastre-se aqui</a></p>
+                    <div id="loginMessage" class="message-box hidden"></div>
                 </form>
             </div>
         </section>
 
-        <!-- Nova Seção de Cadastro -->
         <section id="register" class="hidden">
             <div class="card max-w-md mx-auto">
                 <h2 class="text-2xl font-semibold mb-6 text-center text-gray-700">Crie sua Conta</h2>
@@ -273,16 +295,28 @@
                         <label for="confirmPassword" class="block text-gray-700 text-sm font-bold mb-2">Confirmar Senha:</label>
                         <input type="password" id="confirmPassword" name="confirmPassword" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400" placeholder="********" required>
                     </div>
+                    <div class="mb-4">
+                        <label for="registerCooperative" class="block text-gray-700 text-sm font-bold mb-2">Cooperativa:</label>
+                        <input type="text" id="registerCooperative" name="registerCooperative" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400" placeholder="Nome da sua cooperativa (opcional)">
+                    </div>
+                    <div class="mb-6">
+                        <label for="registerFarmData" class="block text-gray-700 text-sm font-bold mb-2">Dados da Fazenda:</label>
+                        <textarea id="registerFarmData" name="registerFarmData" rows="3" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400" placeholder="Nome da fazenda, área, culturas principais (opcional)"></textarea>
+                    </div>
                     <div class="flex items-center justify-between">
                         <button type="submit" class="btn-primary w-full">Cadastrar</button>
                     </div>
                     <p class="text-center text-sm text-gray-600 mt-4">Já tem uma conta? <a href="#" id="backToLoginLink" class="text-blue-500 hover:underline">Faça login aqui</a></p>
+                    <div id="registerMessage" class="message-box hidden"></div>
                 </form>
             </div>
         </section>
 
-        <!-- Seção do Dashboard -->
         <section id="dashboard" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Mensagem de Boas-Vindas -->
+            <div class="lg:col-span-3 card text-center">
+                <h2 id="welcomeMessageDisplay" class="text-2xl font-bold text-green-700 mb-4"></h2>
+            </div>
             <!-- Card de Desperdício por Hectare -->
             <div class="card">
                 <h3 class="text-xl font-semibold mb-4 text-gray-800 flex items-center">
@@ -353,7 +387,6 @@
                     Coleta de Dados
                 </h3>
                 <div class="space-y-6">
-                    <!-- Seção de Dados Manuais -->
                     <div>
                         <h4 class="text-lg font-semibold text-gray-800 flex items-center mb-3">
                             <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
@@ -375,7 +408,6 @@
                         <p id="manualSaveMessage" class="text-sm mt-2 text-green-600 hidden">Dados salvos com sucesso!</p>
                     </div>
 
-                    <!-- Seção de Sensores Caseiros -->
                     <div class="mt-8">
                         <h4 class="text-lg font-semibold text-gray-800 flex items-center mb-3">
                             <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-1.25-3M15 10V5a3 3 0 00-3-3l-4 9v11h12V9h-5z"></path></svg>
@@ -394,13 +426,11 @@
             </div>
         </section>
 
-        <!-- Seção de Relatórios Inteligentes -->
         <section id="reports" class="hidden">
             <div class="card">
                 <h2 class="text-2xl font-semibold mb-6 text-center text-gray-700">Relatórios Inteligentes</h2>
                 <div class="space-y-6">
-                    <!-- Relatório Mensal de Desperdício -->
-                    <div id="monthlyReport">
+                    <div>
                         <h3 class="text-xl font-semibold mb-3 text-gray-800 flex items-center">
                             <svg class="w-6 h-6 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-5m3 5v-1m3 1v-3m4-6V6a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h2m4 0h6m-6 0h-2M9 16l3-3 3 3"></path></svg>
                             Relatório Mensal - Junho 2025
@@ -413,7 +443,6 @@
                         </ul>
                     </div>
 
-                    <!-- Relatório Sob Demanda (Exemplo) -->
                     <div>
                         <h3 class="text-xl font-semibold mb-3 text-gray-800 flex items-center">
                             <svg class="w-6 h-6 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 112-2h2a2 2 0 112 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
@@ -426,7 +455,6 @@
                         </ul>
                     </div>
 
-                    <!-- Botões para seleção do tipo de gráfico -->
                     <div class="mt-8 text-center">
                         <h3 class="text-xl font-semibold mb-4 text-gray-800">Tipo de Gráfico</h3>
                         <div class="flex flex-wrap justify-center gap-2 mb-6" id="chartTypeButtons">
@@ -439,11 +467,10 @@
                         </div>
                     </div>
 
-                    <!-- Gráfico -->
                     <div class="mt-8">
                         <h3 class="text-xl font-semibold mb-4 text-gray-800 text-center">Desperdício vs. Uso Eficiente (por Hectare)</h3>
                         <div class="w-full max-w-sm mx-auto">
-                            <canvas id="myChart"></canvas> <!-- Renomeado para myChart para evitar conflito com myPieChart -->
+                            <canvas id="myChart"></canvas>
                         </div>
                     </div>
 
@@ -454,26 +481,25 @@
             </div>
         </section>
 
-        <!-- Seção de Perfil -->
         <section id="profile" class="hidden">
             <div class="card max-w-2xl mx-auto">
                 <h2 class="text-2xl font-semibold mb-6 text-center text-gray-700">Meu Perfil</h2>
                 <div class="flex flex-col md:flex-row items-center md:items-start gap-8">
-                    <!-- Foto de Perfil -->
                     <div class="flex-shrink-0">
-                        <img src="https://placehold.co/150x150/a7f3d0/065f46?text=Foto" alt="Foto de Perfil" class="w-36 h-36 rounded-full object-cover border-4 border-green-400 shadow-md">
-                        <button class="mt-4 w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors">Alterar Foto</button>
+                        <img id="profilePicImg" src="https://placehold.co/150x150/a7f3d0/065f46?text=Foto" alt="Foto de Perfil" class="w-36 h-36 rounded-full object-cover border-4 border-green-400 shadow-md">
+                        <input type="file" id="profilePicInput" accept="image/png, image/jpeg, image/jpg" class="hidden">
+                        <button id="changeProfilePicBtn" class="mt-4 w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors">Alterar Foto</button>
+                        <div id="profilePicMessage" class="message-box hidden mt-2"></div>
                     </div>
 
-                    <!-- Dados do Perfil -->
                     <div class="flex-grow w-full">
                         <div class="mb-4">
                             <label for="profileName" class="block text-gray-700 text-sm font-bold mb-2">Nome:</label>
-                            <input type="text" id="profileName" value="João Silva" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400">
+                            <input type="text" id="profileName" value="" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400">
                         </div>
                         <div class="mb-4">
                             <label for="profileEmail" class="block text-gray-700 text-sm font-bold mb-2">E-mail:</label>
-                            <input type="email" id="profileEmail" value="joao.silva@exemplo.com" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400" disabled>
+                            <input type="email" id="profileEmail" value="" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400" disabled>
                         </div>
                         <div class="mb-4">
                             <label for="darkModeToggle" class="block text-gray-700 text-sm font-bold mb-2">Modo de Exibição:</label>
@@ -484,7 +510,7 @@
                         </div>
                         <div class="mb-4">
                             <label for="userData" class="block text-gray-700 text-sm font-bold mb-2">Dados do Usuário:</label>
-                            <textarea id="userData" rows="3" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400">CPF: XXX.XXX.XXX-XX&#10;Telefone: (XX) XXXX-XXXX</textarea>
+                            <textarea id="userData" rows="3" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400" placeholder="CPF: XXX.XXX.XXX-XX&#10;Telefone: (XX) XXXX-XXXX"></textarea>
                         </div>
                         <div class="mb-4">
                             <label for="additionalInfo" class="block text-gray-700 text-sm font-bold mb-2">Observações:</label>
@@ -492,11 +518,11 @@
                         </div>
                         <div class="mb-4">
                             <label for="cooperative" class="block text-gray-700 text-sm font-bold mb-2">Cooperativa:</label>
-                            <input type="text" id="cooperative" value="Cooperativa Agrícola do Sul" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400">
+                            <input type="text" id="cooperative" value="" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400">
                         </div>
                         <div class="mb-4">
                             <label for="farmData" class="block text-gray-700 text-sm font-bold mb-2">Dados da Fazenda:</label>
-                            <textarea id="farmData" rows="4" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400">Nome da Fazenda: Fazenda Esperança&#10;Área Total: 500 hectares&#10;Culturas Principais: Soja, Milho</textarea>
+                            <textarea id="farmData" rows="4" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-400"></textarea>
                         </div>
                         <div class="text-right">
                             <button class="btn-primary">Salvar Alterações</button>
@@ -507,7 +533,6 @@
         </section>
     </main>
 
-    <!-- Pop-up de Permissão de Localização -->
     <div id="locationPermissionPopup" class="popup-overlay hidden">
         <div class="popup-content">
             <h3 class="text-xl font-semibold mb-4 text-gray-800">Permissão de Localização</h3>
@@ -520,55 +545,63 @@
         </div>
     </div>
 
-    <!-- Rodapé da Aplicação -->
     <footer class="bg-gray-800 text-white p-4 mt-8 rounded-t-xl">
         <div class="container text-center text-sm">
             &copy; 2025 Sustenta Pitanga. Todos os direitos reservados.
         </div>
     </footer>
 
-    <!-- Script JavaScript -->
     <script>
-        let myChartInstance = null; // Variável para armazenar a instância do gráfico
-        // Substitua "YOUR_OPENWEATHERMAP_API_KEY" pela sua chave da API OpenWeatherMap
-        const WEATHER_API_KEY = "YOUR_OPENWEATHERMAP_API_KEY"; 
+        let myChartInstance = null;
+        const WEATHER_API_KEY = "YOUR_OPENWEATHERMAP_API_KEY";
         const WEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather";
 
-        // Função para alternar a visibilidade das seções
+        function showMessage(elementId, message, type) {
+            const messageElement = document.getElementById(elementId);
+            messageElement.textContent = message;
+            messageElement.className = `message-box ${type}`;
+            messageElement.classList.remove('hidden');
+            setTimeout(() => {
+                messageElement.classList.add('hidden');
+            }, 3000);
+        }
+
         function showSection(sectionId) {
             const sections = document.querySelectorAll('section');
             sections.forEach(section => {
-                section.classList.add('hidden'); // Esconde todas as seções
+                section.classList.add('hidden');
             });
-            document.getElementById(sectionId).classList.remove('hidden'); // Mostra a seção desejada
+            document.getElementById(sectionId).classList.remove('hidden');
 
-            // Atualiza o estado ativo na navegação
             const navLinks = document.querySelectorAll('.nav-link');
             navLinks.forEach(link => {
                 link.classList.remove('active');
             });
-            // Ativa o link de navegação apenas se não for a seção de login
-            if (sectionId !== 'login' && sectionId !== 'register') { // Adicionado 'register'
+            if (sectionId !== 'login' && sectionId !== 'register') {
                 const activeLink = document.querySelector(`.nav-link[data-target="${sectionId}"]`);
                 if (activeLink) {
                     activeLink.classList.add('active');
                 }
             }
 
-            // Controla a visibilidade da barra de navegação principal
             const mainNav = document.getElementById('main-nav');
-            if (sectionId === 'login' || sectionId === 'register') { // Adicionado 'register'
+            if (sectionId === 'login' || sectionId === 'register') {
                 mainNav.classList.add('hidden');
             } else {
                 mainNav.classList.remove('hidden');
             }
+
+            // Lógica específica para carregar dados do perfil quando a seção 'profile' é exibida
+            if (sectionId === 'profile') {
+                loadProfileData();
+            } else if (sectionId === 'dashboard') { // Adiciona lógica para o dashboard
+                displayWelcomeMessage(); // Exibe a mensagem de boas-vindas
+            }
         }
 
-        // Função para inicializar ou atualizar o gráfico
         function initChart(chartType = 'pie') {
             const ctx = document.getElementById('myChart');
 
-            // Destrói a instância anterior do gráfico se existir
             if (myChartInstance) {
                 myChartInstance.destroy();
             }
@@ -579,8 +612,8 @@
                 datasets: [{
                     data: [15, 85],
                     backgroundColor: [
-                        '#ef4444', // Vermelho para desperdício
-                        '#22c55e'  // Verde para uso eficiente
+                        '#ef4444',
+                        '#22c55e'
                     ],
                     borderColor: '#ffffff',
                     borderWidth: 2,
@@ -605,7 +638,7 @@
                 labels: ['Desperdício', 'Adubos', 'Água', 'Solo'],
                 datasets: [{
                     label: 'Métricas',
-                    data: [15, 80, 70, 85], // Dados simulados para radar
+                    data: [15, 80, 70, 85],
                     backgroundColor: 'rgba(59, 130, 246, 0.2)',
                     borderColor: '#3b82f6',
                     borderWidth: 1,
@@ -618,7 +651,7 @@
 
             switch (chartType) {
                 case 'pie':
-                case 'doughnut': // Rosca
+                case 'doughnut':
                     chartConfig = {
                         type: chartType,
                         data: data,
@@ -640,13 +673,13 @@
                         }
                     };
                     break;
-                case 'bar-column': // Coluna
+                case 'bar-column':
                     chartConfig = {
                         type: 'bar',
                         data: barData,
                         options: {
                             responsive: true,
-                            indexAxis: 'x', // Barras verticais (colunas)
+                            indexAxis: 'x',
                             plugins: {
                                 legend: {
                                     display: false
@@ -664,13 +697,13 @@
                         }
                     };
                     break;
-                case 'bar-horizontal': // Barras
+                case 'bar-horizontal':
                     chartConfig = {
                         type: 'bar',
                         data: barData,
                         options: {
                             responsive: true,
-                            indexAxis: 'y', // Barras horizontais
+                            indexAxis: 'y',
                             plugins: {
                                 legend: {
                                     display: false
@@ -695,7 +728,7 @@
                             labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
                             datasets: [{
                                 label: 'Desperdício Mensal (%)',
-                                data: [20, 18, 15, 12, 10, 8], // Dados simulados
+                                data: [20, 18, 15, 12, 10, 8],
                                 borderColor: '#3b82f6',
                                 backgroundColor: 'rgba(59, 130, 246, 0.2)',
                                 fill: true,
@@ -748,7 +781,6 @@
                     };
                     break;
                 default:
-                    // Fallback para pizza se o tipo não for reconhecido
                     chartConfig = {
                         type: 'pie',
                         data: data,
@@ -770,26 +802,21 @@
             myChartInstance = new Chart(ctx, chartConfig);
         }
 
-        // Função para exibir o pop-up de permissão de localização
         function showLocationPermissionPopup() {
             document.getElementById('locationPermissionPopup').classList.remove('hidden');
         }
 
-        // Função para esconder o pop-up de permissão de localização
         function hideLocationPermissionPopup() {
             document.getElementById('locationPermissionPopup').classList.add('hidden');
         }
 
-        // Função para obter o clima em tempo real
         async function getRealtimeWeather(latitude, longitude) {
             const weatherInfoDiv = document.getElementById('weatherInfo');
             weatherInfoDiv.innerHTML = '<p class="text-lg text-gray-600">Buscando dados climáticos...</p>';
 
-            // Verifica se a API Key foi fornecida
             if (WEATHER_API_KEY === "YOUR_OPENWEATHERMAP_API_KEY" || !WEATHER_API_KEY) {
                 weatherInfoDiv.innerHTML = '<p class="text-lg text-red-600">Para obter dados climáticos reais, por favor, insira sua chave da API OpenWeatherMap no código.</p>';
                 console.warn("Chave da API OpenWeatherMap não configurada. Usando dados simulados.");
-                // Usar dados simulados se a chave da API não estiver configurada
                 simulateWeatherDisplay();
                 return;
             }
@@ -817,22 +844,21 @@
             } catch (error) {
                 console.error("Erro ao obter dados climáticos da API:", error);
                 weatherInfoDiv.innerHTML = `<p class="text-lg text-red-600">Erro ao carregar clima: ${error.message}. Usando dados simulados.</p>`;
-                simulateWeatherDisplay(); // Fallback para dados simulados em caso de erro da API
+                simulateWeatherDisplay();
             }
         }
 
-        // Função para exibir dados climáticos simulados
         function simulateWeatherDisplay() {
             const weatherInfoDiv = document.getElementById('weatherInfo');
             const simulatedWeatherData = {
                 name: "Fazenda Exemplo",
                 main: {
-                    temp: (20 + Math.random() * 10).toFixed(1), // Temperatura entre 20 e 30
-                    humidity: (60 + Math.random() * 20).toFixed(0) // Umidade entre 60 e 80
+                    temp: (20 + Math.random() * 10).toFixed(1),
+                    humidity: (60 + Math.random() * 20).toFixed(0)
                 },
                 weather: [{
                     description: Math.random() > 0.5 ? "Céu Limpo" : "Nuvens Dispersas",
-                    icon: Math.random() > 0.5 ? "01d" : "03d" // Ícones simulados
+                    icon: Math.random() > 0.5 ? "01d" : "03d"
                 }]
             };
 
@@ -841,7 +867,7 @@
             const humidity = simulatedWeatherData.main.humidity;
             const locationName = simulatedWeatherData.name;
             const iconCode = simulatedWeatherData.weather[0].icon;
-            const iconUrl = `https://openweathermap.org/img/wn/${iconCode}.png`; // Ícone do OpenWeatherMap
+            const iconUrl = `https://openweathermap.org/img/wn/${iconCode}.png`;
 
             weatherInfoDiv.innerHTML = `
                 <p class="text-4xl font-bold text-blue-600 mb-2">${temp}°C <img src="${iconUrl}" alt="${description}" class="inline-block w-12 h-12 -mt-2"> <span class="text-xl font-normal text-gray-500">${description}</span></p>
@@ -851,14 +877,12 @@
             `;
         }
 
-
-        // Lidar com a permissão de localização
         function handleLocationPermission(permissionType) {
             hideLocationPermissionPopup();
             if (permissionType === 'deny') {
                 document.getElementById('weatherInfo').innerHTML = '<p class="text-lg text-red-600">Localização não permitida. O clima exibido será genérico.</p>';
                 localStorage.setItem('locationPermission', 'denied');
-                simulateWeatherDisplay(); // Exibe dados simulados se a localização for negada
+                simulateWeatherDisplay();
             } else {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(
@@ -868,8 +892,8 @@
                             getRealtimeWeather(lat, lon);
                             if (permissionType === 'always') {
                                 localStorage.setItem('locationPermission', 'granted');
-                            } else { // 'once'
-                                localStorage.removeItem('locationPermission'); // Não persiste a permissão
+                            } else {
+                                localStorage.removeItem('locationPermission');
                             }
                         },
                         (error) => {
@@ -890,19 +914,18 @@
                             }
                             console.error("Erro ao obter localização:", errorMessage, error);
                             document.getElementById('weatherInfo').innerHTML = `<p class="text-lg text-red-600">${errorMessage} O clima exibido será genérico.</p>`;
-                            localStorage.setItem('locationPermission', 'denied'); // Marca como negado para evitar o pop-up novamente
-                            simulateWeatherDisplay(); // Fallback para dados simulados em caso de erro
+                            localStorage.setItem('locationPermission', 'denied');
+                            simulateWeatherDisplay();
                         }
                     );
                 } else {
                     document.getElementById('weatherInfo').innerHTML = '<p class="text-lg text-red-600">Geolocalização não é suportada pelo seu navegador. O clima exibido será genérico.</p>';
-                    localStorage.setItem('locationPermission', 'denied'); // Marca como negado
-                    simulateWeatherDisplay(); // Exibe dados simulados se a geolocalização não for suportada
+                    localStorage.setItem('locationPermission', 'denied');
+                    simulateWeatherDisplay();
                 }
             }
         }
 
-        // Função para aplicar ou remover o modo escuro
         function applyDarkMode(isDarkMode) {
             if (isDarkMode) {
                 document.body.classList.add('dark-mode');
@@ -911,7 +934,6 @@
             }
         }
 
-        // Funções para manipulação de dados manuais
         function saveManualData() {
             const dailyWater = document.getElementById('dailyWaterInput').value;
             const fertilizerUse = document.getElementById('fertilizerUseInput').value;
@@ -934,7 +956,6 @@
             document.getElementById('soilObservationInput').value = localStorage.getItem('soilObservation') || '';
         }
 
-        // Funções para manipulação de dados de sensores simulados
         function sendSensorData() {
             const waterMeterReading = document.getElementById('waterMeterInput').value;
             localStorage.setItem('lastSensorReading', waterMeterReading);
@@ -952,10 +973,73 @@
             document.getElementById('lastSensorReadingDisplay').textContent = lastReading ? `${lastReading} litros/min` : 'N/A';
         }
 
+        // Função para obter todos os dados de usuários registrados
+        function getRegisteredUsersData() {
+            const usersData = localStorage.getItem('registeredUsersData');
+            return usersData ? JSON.parse(usersData) : {};
+        }
 
-        // Adiciona listeners de evento para os links de navegação
+        // Função para adicionar/atualizar dados de um usuário registrado
+        function saveUserData(email, userData) {
+            const allUsersData = getRegisteredUsersData();
+            allUsersData[email] = userData;
+            localStorage.setItem('registeredUsersData', JSON.stringify(allUsersData));
+        }
+
+        // Variável global para armazenar o e-mail do usuário logado
+        let loggedInUserEmail = null;
+
+        // Função para carregar os dados do perfil
+        function loadProfileData() {
+            const profileNameInput = document.getElementById('profileName');
+            const profileEmailInput = document.getElementById('profileEmail');
+            const cooperativeInput = document.getElementById('cooperative');
+            const farmDataTextarea = document.getElementById('farmData');
+
+            if (loggedInUserEmail) {
+                const allUsersData = getRegisteredUsersData();
+                const userData = allUsersData[loggedInUserEmail];
+
+                if (userData) {
+                    profileNameInput.value = userData.name || '';
+                    profileEmailInput.value = userData.email || '';
+                    cooperativeInput.value = userData.cooperative || '';
+                    farmDataTextarea.value = userData.farmData || '';
+                } else {
+                    // Caso os dados do usuário não sejam encontrados (situação improvável se o login foi bem-sucedido)
+                    profileNameInput.value = '';
+                    profileEmailInput.value = loggedInUserEmail; // Pelo menos o email sabemos
+                    cooperativeInput.value = '';
+                    farmDataTextarea.value = '';
+                }
+            } else {
+                // Se não houver usuário logado, limpa os campos (ou mantém os placeholders)
+                profileNameInput.value = '';
+                profileEmailInput.value = '';
+                cooperativeInput.value = '';
+                farmDataTextarea.value = '';
+            }
+        }
+
+        // Nova função para exibir a mensagem de boas-vindas no dashboard
+        function displayWelcomeMessage() {
+            const welcomeMessageElement = document.getElementById('welcomeMessageDisplay');
+            if (loggedInUserEmail) {
+                const allUsersData = getRegisteredUsersData();
+                const userData = allUsersData[loggedInUserEmail];
+                if (userData && userData.name) {
+                    const firstName = userData.name.split(' ')[0]; // Pega o primeiro nome
+                    welcomeMessageElement.textContent = `Bem-vindo(a), ${firstName}!`;
+                } else {
+                    welcomeMessageElement.textContent = `Bem-vindo(a)!`; // Mensagem genérica se o nome não for encontrado
+                }
+            } else {
+                welcomeMessageElement.textContent = `Faça login para ver sua mensagem de boas-vindas!`; // Se não estiver logado
+            }
+        }
+
+
         document.addEventListener('DOMContentLoaded', () => {
-            // Carrega a preferência de modo escuro do localStorage
             const savedDarkMode = localStorage.getItem('darkMode');
             if (savedDarkMode === 'enabled') {
                 applyDarkMode(true);
@@ -971,21 +1055,17 @@
                     event.preventDefault();
                     const targetId = event.target.dataset.target;
                     showSection(targetId);
-                    // Se a seção de relatórios for mostrada, inicializa o gráfico
                     if (targetId === 'reports') {
-                        initChart('pie'); // Inicia com gráfico de pizza por padrão
-                        // Ativa o botão de pizza
+                        initChart('pie');
                         document.querySelectorAll('.chart-type-btn').forEach(btn => {
                             btn.classList.remove('active');
                         });
                         document.querySelector('.chart-type-btn[data-chart-type="pie"]').classList.add('active');
                     } else if (targetId === 'dashboard') {
-                        // Ao entrar no dashboard, verifica a permissão de localização
                         const permissionStatus = localStorage.getItem('locationPermission');
-                        if (!permissionStatus) { // Se ainda não houver uma decisão
+                        if (!permissionStatus) {
                             showLocationPermissionPopup();
                         } else if (permissionStatus === 'granted') {
-                            // Se já foi concedida, tenta obter a localização
                             if (navigator.geolocation) {
                                 navigator.geolocation.getCurrentPosition(
                                     (position) => {
@@ -1011,55 +1091,67 @@
                                         }
                                         console.error("Erro ao obter localização:", errorMessage, error);
                                         document.getElementById('weatherInfo').innerHTML = `<p class="text-lg text-red-600">${errorMessage} O clima exibido será genérico.</p>`;
-                                        simulateWeatherDisplay(); // Fallback para dados simulados em caso de erro
+                                        simulateWeatherDisplay();
                                     }
                                 );
                             } else {
                                 document.getElementById('weatherInfo').innerHTML = '<p class="text-lg text-red-600">Geolocalização não é suportada pelo seu navegador. O clima exibido será genérico.</p>';
-                                simulateWeatherDisplay(); // Exibe dados simulados se a geolocalização não for suportada
+                                simulateWeatherDisplay();
                             }
-                        } else { // permissionStatus === 'denied'
+                        } else {
                             document.getElementById('weatherInfo').innerHTML = '<p class="text-lg text-red-600">Localização não permitida. O clima exibido será genérico.</p>';
-                            simulateWeatherDisplay(); // Exibe dados simulados se a localização foi negada anteriormente
+                            simulateWeatherDisplay();
                         }
-                        loadManualData(); // Carrega dados manuais ao entrar no dashboard
-                        loadSensorData(); // Carrega dados do sensor ao entrar no dashboard
+                        loadManualData();
+                        loadSensorData();
                     }
                 });
             });
 
-            // Mostra a seção de login por padrão ao carregar a página
-            // E garante que a navegação principal esteja oculta inicialmente
-            showSection('login'); 
+            showSection('login');
 
-            // Lógica de simulação de login
             const loginForm = document.getElementById('loginForm');
             if (loginForm) {
                 loginForm.addEventListener('submit', (event) => {
-                    event.preventDefault(); // Impede o envio padrão do formulário
-                    // Aqui você adicionaria a lógica de autenticação real
-                    // Por enquanto, apenas simula o login e mostra o dashboard
-                    console.log('Tentativa de login...');
-                    // Simula um atraso para "processar" o login
+                    event.preventDefault();
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
+                    const loginMessage = document.getElementById('loginMessage');
+
+                    if (!email.endsWith('@gmail.com')) {
+                        showMessage('loginMessage', 'Apenas contas Gmail são permitidas para login.', 'error');
+                        return;
+                    }
+
+                    const allUsersData = getRegisteredUsersData();
+                    if (!allUsersData[email]) {
+                        showMessage('loginMessage', 'Conta não cadastrada. Por favor, cadastre-se.', 'error');
+                        setTimeout(() => {
+                            showSection('register');
+                        }, 1500);
+                        return;
+                    }
+
+                    // Simulação de verificação de senha (em um app real, isso seria feito no servidor)
+                    // Para fins de demonstração, qualquer senha funciona se o e-mail estiver registrado
+                    console.log('Tentativa de login bem-sucedida...');
+                    showMessage('loginMessage', 'Login bem-sucedido!', 'success');
+                    loggedInUserEmail = email; // Define o usuário logado
                     setTimeout(() => {
-                        showSection('dashboard'); // Redireciona para o dashboard após o "login"
-                    }, 500);
+                        showSection('dashboard');
+                    }, 1000);
                 });
             }
 
-            // Lógica para gerar PDF
             const generatePdfBtn = document.getElementById('generatePdfBtn');
             if (generatePdfBtn) {
                 generatePdfBtn.addEventListener('click', () => {
-                    // Importa jsPDF do objeto global window
                     const { jsPDF } = window.jspdf;
                     const doc = new jsPDF();
 
-                    // Título do relatório
                     doc.setFontSize(22);
                     doc.text("Relatório Sustenta Pitanga", 105, 20, null, null, "center");
 
-                    // Adiciona a data atual
                     const today = new Date();
                     const dateString = today.toLocaleDateString('pt-BR', {
                         year: 'numeric', month: 'long', day: 'numeric'
@@ -1067,7 +1159,6 @@
                     doc.setFontSize(10);
                     doc.text(`Gerado em: ${dateString}`, 105, 28, null, null, "center");
 
-                    // Conteúdo do Relatório Mensal (simulado)
                     doc.setFontSize(16);
                     doc.text("Relatório Mensal - Junho 2025", 20, 40);
 
@@ -1077,7 +1168,6 @@
                     doc.text("- Uso de água: 1200 litros/hectare (dentro da meta).", 20, 70);
                     doc.text("- Qualidade do solo: Melhoria de 15% nos indicadores.", 20, 80);
 
-                    // Conteúdo do Relatório Personalizado (simulado)
                     doc.setFontSize(16);
                     doc.text("Relatório Personalizado - Uso de Pesticidas (Maio 2025)", 20, 100);
 
@@ -1086,12 +1176,10 @@
                     doc.text("- Pesticida X: 5% acima do limite seguro.", 20, 120);
                     doc.text("- Recomendação: Avaliar alternativas biológicas para a próxima safra.", 20, 130);
 
-                    // Salva o PDF
                     doc.save("Relatorio_Sustenta_Pitanga.pdf");
                 });
             }
 
-            // Adiciona listeners para os botões de tipo de gráfico
             const chartTypeButtons = document.getElementById('chartTypeButtons');
             if (chartTypeButtons) {
                 chartTypeButtons.addEventListener('click', (event) => {
@@ -1099,11 +1187,9 @@
                     if (target.tagName === 'BUTTON') {
                         const chartType = target.dataset.chartType;
 
-                        // Remove a classe 'active' de todos os botões
                         document.querySelectorAll('.chart-type-btn').forEach(btn => {
                             btn.classList.remove('active');
                         });
-                        // Adiciona a classe 'active' ao botão clicado
                         target.classList.add('active');
 
                         initChart(chartType);
@@ -1111,7 +1197,6 @@
                 });
             }
 
-            // Adiciona listeners para os botões do pop-up de localização
             const locationPermissionPopup = document.getElementById('locationPermissionPopup');
             if (locationPermissionPopup) {
                 locationPermissionPopup.addEventListener('click', (event) => {
@@ -1122,7 +1207,6 @@
                 });
             }
 
-            // Listener para o toggle do modo escuro
             const darkModeToggle = document.getElementById('darkModeToggle');
             if (darkModeToggle) {
                 darkModeToggle.addEventListener('change', (event) => {
@@ -1136,11 +1220,9 @@
                 });
             }
 
-            // Adiciona listeners para os botões de dados manuais e sensores
             document.getElementById('saveManualDataBtn').addEventListener('click', saveManualData);
             document.getElementById('sendSensorDataBtn').addEventListener('click', sendSensorData);
 
-            // Adiciona listener para o link "Cadastre-se aqui"
             const registerLink = document.getElementById('registerLink');
             if (registerLink) {
                 registerLink.addEventListener('click', (event) => {
@@ -1149,7 +1231,6 @@
                 });
             }
 
-            // Adiciona listener para o link "Faça login aqui" na tela de cadastro
             const backToLoginLink = document.getElementById('backToLoginLink');
             if (backToLoginLink) {
                 backToLoginLink.addEventListener('click', (event) => {
@@ -1158,7 +1239,6 @@
                 });
             }
 
-            // Lógica de simulação de cadastro
             const registerForm = document.getElementById('registerForm');
             if (registerForm) {
                 registerForm.addEventListener('submit', (event) => {
@@ -1167,15 +1247,77 @@
                     const email = document.getElementById('registerEmail').value;
                     const password = document.getElementById('registerPassword').value;
                     const confirmPassword = document.getElementById('confirmPassword').value;
+                    const cooperative = document.getElementById('registerCooperative').value;
+                    const farmData = document.getElementById('registerFarmData').value;
+                    const registerMessage = document.getElementById('registerMessage');
 
                     if (password !== confirmPassword) {
-                        alert('As senhas não coincidem!'); // Usando alert para simplificar a simulação
+                        showMessage('registerMessage', 'As senhas não coincidem!', 'error');
                         return;
                     }
 
-                    // Simulação de registro bem-sucedido
-                    alert(`Cadastro de ${name} com e-mail ${email} realizado com sucesso!`); // Usando alert para simplificar
-                    showSection('login'); // Volta para a tela de login após o cadastro
+                    if (!email.endsWith('@gmail.com')) {
+                        showMessage('registerMessage', 'Apenas contas Gmail podem ser cadastradas.', 'error');
+                        return;
+                    }
+
+                    const allUsersData = getRegisteredUsersData();
+                    if (allUsersData[email]) {
+                        showMessage('registerMessage', 'Conta já cadastrada. Redirecionando para o Dashboard...', 'info');
+                        loggedInUserEmail = email; // Define o usuário logado
+                        setTimeout(() => {
+                            showSection('dashboard');
+                        }, 1500);
+                        return;
+                    }
+
+                    const newUserData = {
+                        name: name,
+                        email: email,
+                        cooperative: cooperative,
+                        farmData: farmData
+                    };
+                    saveUserData(email, newUserData); // Salva os dados completos do usuário
+                    showMessage('registerMessage', `Cadastro de ${name} com e-mail ${email} realizado com sucesso!`, 'success');
+                    
+                    // Após o cadastro bem-sucedido, define o usuário como logado e redireciona para o dashboard
+                    loggedInUserEmail = email;
+                    setTimeout(() => {
+                        showSection('dashboard');
+                    }, 1500);
+                });
+            }
+
+            const changeProfilePicBtn = document.getElementById('changeProfilePicBtn');
+            const profilePicInput = document.getElementById('profilePicInput');
+            const profilePicImg = document.getElementById('profilePicImg');
+            const profilePicMessage = document.getElementById('profilePicMessage');
+
+            if (changeProfilePicBtn && profilePicInput && profilePicImg) {
+                changeProfilePicBtn.addEventListener('click', () => {
+                    profilePicInput.click();
+                });
+
+                profilePicInput.addEventListener('change', (event) => {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const validImageTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+                        if (validImageTypes.includes(file.type)) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                profilePicImg.src = e.target.result;
+                                showMessage('profilePicMessage', 'Foto de perfil atualizada com sucesso!', 'success');
+                            };
+                            reader.onerror = () => {
+                                showMessage('profilePicMessage', 'Erro ao carregar a imagem.', 'error');
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            showMessage('profilePicMessage', 'Por favor, selecione um arquivo PNG, JPG ou JPEG.', 'error');
+                        }
+                    } else {
+                        showMessage('profilePicMessage', 'Nenhuma imagem selecionada.', 'error');
+                    }
                 });
             }
         });
