@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome para ícones de redes sociais -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -244,16 +246,16 @@
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
-    <header class="bg-gradient-to-r from-blue-500 to-green-500 text-white p-4 shadow-lg rounded-b-xl relative">
-        <div class="container flex items-center justify-center h-full">
+    <header class="bg-gradient-to-r from-blue-500 to-green-500 text-white p-4 shadow-lg rounded-b-xl">
+        <div class="container flex flex-col items-center">
             <!-- Logo and Title (centered) -->
-            <div class="flex items-center">
+            <div class="flex items-center mb-4">
                 <img src="ccm.png" alt="Logo CCM" class="h-12 w-12 mr-3 rounded-full">
                 <h1 class="text-3xl font-bold">Sustenta Pitanga</h1>
             </div>
 
-            <!-- Navigation buttons (positioned absolutely to the right) -->
-            <nav id="main-nav" class="hidden absolute right-4 top-1/2 -translate-y-1/2">
+            <!-- Navigation buttons (centered below title) -->
+            <nav id="main-nav" class="hidden w-full flex justify-center">
                 <ul class="flex space-x-4">
                     <li><a class="nav-link text-white" data-target="dashboard">Dashboard</a></li>
                     <li><a class="nav-link text-white" data-target="reports">Relatórios</a></li>
@@ -421,7 +423,7 @@
                     <div class="mt-8">
                         <h4 class="text-lg font-semibold text-gray-800 flex items-center mb-3">
                             <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-1.25-3M15 10V5a3 3 0 00-3-3l-4 9v11h12V9h-5z"></path></svg>
-                            Sensores Caseiros 
+                            Sensores Caseiros (Simulado)
                         </h4>
                         <p class="text-gray-700 mb-4">Simule a leitura de um medidor de água adaptado com Arduino. Em uma aplicação real, esses dados seriam enviados automaticamente.</p>
                         <div class="mb-4">
@@ -556,9 +558,18 @@
         </div>
     </div>
 
-    <footer class="bg-gray-800 text-white p-4 mt-8 rounded-t-xl">
-        <div class="container text-center text-sm">
+    <footer class="bg-gray-800 text-white p-4 mt-8 rounded-t-xl flex justify-between items-center">
+        <div class="container text-center text-sm flex-grow">
             &copy; 2025 Sustenta Pitanga. Todos os direitos reservados.
+        </div>
+        <!-- Social Media Icons -->
+        <div class="flex space-x-4 mr-4">
+            <a href="https://www.instagram.com/ccmdompedro/" target="_blank" class="text-white hover:text-pink-400 transition-colors">
+                <i class="fab fa-instagram text-2xl"></i>
+            </a>
+            <a href="https://www.facebook.com/ccmdompedro" target="_blank" class="text-white hover:text-blue-600 transition-colors">
+                <i class="fab fa-facebook text-2xl"></i>
+            </a>
         </div>
     </footer>
 
@@ -861,7 +872,7 @@
         function simulateWeatherDisplay() {
             const weatherInfoDiv = document.getElementById('weatherInfo');
             const simulatedWeatherData = {
-                name: "Fazenda Exemplo",
+                name: "Fazenda Exemplo (Simulado)",
                 main: {
                     temp: (20 + Math.random() * 10).toFixed(1),
                     humidity: (60 + Math.random() * 20).toFixed(0)
@@ -1149,7 +1160,7 @@
 
                     // Simulação de verificação de senha (em um app real, isso seria feito no servidor)
                     // Para fins de demonstração, qualquer senha funciona se o e-mail estiver registrado
-                    console.log('Tentativa de login bem-sucedida...');
+                    console.log('Tentativa de login bem-sucedida (simulado)...');
                     showMessage('loginMessage', 'Login bem-sucedido!', 'success');
                     loggedInUserEmail = email; // Define o usuário logado
                     setTimeout(() => {
@@ -1278,10 +1289,8 @@
 
                     const allUsersData = getRegisteredUsersData();
                     if (allUsersData[email]) {
-                        // Modificação: Mensagem mais clara para conta já existente
                         showMessage('registerMessage', 'Esta conta Gmail já está cadastrada. Por favor, faça login.', 'error');
-                        // Não redireciona para o dashboard automaticamente aqui, mas deixa o usuário na tela de cadastro com a mensagem
-                        return;
+                        return; // Não redireciona, apenas mostra a mensagem
                     }
 
                     const newUserData = {
@@ -1295,7 +1304,7 @@
                     
                     loggedInUserEmail = email;
                     setTimeout(() => {
-                        showSection('dashboard'); // Redireciona para o dashboard após o cadastro bem-sucedido
+                        showSection('dashboard');
                     }, 1500);
                 });
             }
@@ -1333,7 +1342,6 @@
                 });
             }
 
-            // Adiciona o listener para o botão de sair da conta
             const logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', logout);
