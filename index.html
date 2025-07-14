@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Font Awesome para ícones de redes sociais -->
+    <!-- Font Awesome para ícones de redes sociais e outros -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -266,7 +266,35 @@
     </header>
 
     <main class="flex-grow container mt-8">
-        <section id="login">
+        <!-- Nova seção "Sobre o Sustenta Pitanga" -->
+        <section id="about">
+            <div class="card max-w-4xl mx-auto text-center">
+                <h2 class="text-3xl font-bold text-green-700 mb-6">Sobre o Sustenta Pitanga</h2>
+                <p class="text-lg text-gray-700 mb-8">
+                    Uma plataforma inovadora para monitoramento agrícola sustentável, desenvolvida pelo CCM Dom Pedro.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="card p-6 flex flex-col items-center text-center">
+                        <i class="fas fa-chart-line text-4xl text-blue-500 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-800">Monitoramento em Tempo Real</h3>
+                        <p class="text-gray-600">Acompanhe indicadores de sustentabilidade da sua propriedade.</p>
+                    </div>
+                    <div class="card p-6 flex flex-col items-center text-center">
+                        <i class="fas fa-shield-alt text-4xl text-green-500 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-800">Alertas Inteligentes</h3>
+                        <p class="text-gray-600">Receba recomendações para melhorar sua produção.</p>
+                    </div>
+                    <div class="card p-6 flex flex-col items-center text-center">
+                        <i class="fas fa-mobile-alt text-4xl text-orange-500 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-800">Sensores Caseiros</h3>
+                        <p class="text-gray-600">Integração com dispositivos IoT para coleta de dados.</p>
+                    </div>
+                </div>
+                <button id="accessPlatformBtn" class="btn-primary text-xl px-8 py-3">Acessar Plataforma</button>
+            </div>
+        </section>
+
+        <section id="login" class="hidden">
             <div class="card max-w-md mx-auto">
                 <h2 class="text-2xl font-semibold mb-6 text-center text-gray-700">Acesse sua Conta</h2>
                 <form id="loginForm">
@@ -423,7 +451,7 @@
                     <div class="mt-8">
                         <h4 class="text-lg font-semibold text-gray-800 flex items-center mb-3">
                             <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-1.25-3M15 10V5a3 3 0 00-3-3l-4 9v11h12V9h-5z"></path></svg>
-                            Sensores Caseiros (Simulado)
+                            Sensores Caseiros
                         </h4>
                         <p class="text-gray-700 mb-4">Simule a leitura de um medidor de água adaptado com Arduino. Em uma aplicação real, esses dados seriam enviados automaticamente.</p>
                         <div class="mb-4">
@@ -558,12 +586,15 @@
         </div>
     </div>
 
-    <footer class="bg-gray-800 text-white p-4 mt-8 rounded-t-xl flex justify-between items-center">
-        <div class="container text-center text-sm flex-grow">
+    <footer class="bg-gray-800 text-white p-4 mt-8 rounded-t-xl flex flex-col items-center">
+        <div class="container text-center text-sm">
             &copy; 2025 Sustenta Pitanga. Todos os direitos reservados.
         </div>
+        <div class="text-center text-sm mt-1">
+            Desenvolvido pelo CCM Dom Pedro I
+        </div>
         <!-- Social Media Icons -->
-        <div class="flex space-x-4 mr-4">
+        <div class="flex space-x-4 mt-4">
             <a href="https://www.instagram.com/ccmdompedro/" target="_blank" class="text-white hover:text-pink-400 transition-colors">
                 <i class="fab fa-instagram text-2xl"></i>
             </a>
@@ -599,7 +630,7 @@
             navLinks.forEach(link => {
                 link.classList.remove('active');
             });
-            if (sectionId !== 'login' && sectionId !== 'register') {
+            if (sectionId !== 'login' && sectionId !== 'register' && sectionId !== 'about') { // Adicionado 'about'
                 const activeLink = document.querySelector(`.nav-link[data-target="${sectionId}"]`);
                 if (activeLink) {
                     activeLink.classList.add('active');
@@ -607,7 +638,7 @@
             }
 
             const mainNav = document.getElementById('main-nav');
-            if (sectionId === 'login' || sectionId === 'register') {
+            if (sectionId === 'login' || sectionId === 'register' || sectionId === 'about') { // Adicionado 'about'
                 mainNav.classList.add('hidden');
             } else {
                 mainNav.classList.remove('hidden');
@@ -872,7 +903,7 @@
         function simulateWeatherDisplay() {
             const weatherInfoDiv = document.getElementById('weatherInfo');
             const simulatedWeatherData = {
-                name: "Fazenda Exemplo (Simulado)",
+                name: "Fazenda Exemplo",
                 main: {
                     temp: (20 + Math.random() * 10).toFixed(1),
                     humidity: (60 + Math.random() * 20).toFixed(0)
@@ -1134,7 +1165,16 @@
                 });
             });
 
-            showSection('login');
+            // Inicialmente mostra a seção "about"
+            showSection('about');
+
+            // Listener para o botão "Acessar Plataforma" na seção "about"
+            const accessPlatformBtn = document.getElementById('accessPlatformBtn');
+            if (accessPlatformBtn) {
+                accessPlatformBtn.addEventListener('click', () => {
+                    showSection('login');
+                });
+            }
 
             const loginForm = document.getElementById('loginForm');
             if (loginForm) {
@@ -1158,11 +1198,9 @@
                         return;
                     }
 
-                    // Simulação de verificação de senha (em um app real, isso seria feito no servidor)
-                    // Para fins de demonstração, qualquer senha funciona se o e-mail estiver registrado
-                    console.log('Tentativa de login bem-sucedida (simulado)...');
+                    console.log('Tentativa de login bem-sucedida...');
                     showMessage('loginMessage', 'Login bem-sucedido!', 'success');
-                    loggedInUserEmail = email; // Define o usuário logado
+                    loggedInUserEmail = email;
                     setTimeout(() => {
                         showSection('dashboard');
                     }, 1000);
@@ -1290,7 +1328,7 @@
                     const allUsersData = getRegisteredUsersData();
                     if (allUsersData[email]) {
                         showMessage('registerMessage', 'Esta conta Gmail já está cadastrada. Por favor, faça login.', 'error');
-                        return; // Não redireciona, apenas mostra a mensagem
+                        return;
                     }
 
                     const newUserData = {
