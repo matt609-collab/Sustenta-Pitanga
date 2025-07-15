@@ -1,32 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <title>Blank Card</title>
+  <title>Card Layout</title>
   <style>
+    body {
+      background-color: #f1f5f9;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
     .card {
-      width: 95%;             /* Adjust width as needed */
-      height: 700px;            /* Adjust height as needed */
+      width: 85%;
+      height: 850px;
       background-color: white;
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       padding: 20px;
       box-sizing: border-box;
-      margin: 20px;
-    }
-    body {
-      background-color: #f1f5f9; /* Light background similar to image */
+      margin-bottom: 30px;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      margin: 0;
+    }
+
+    .small-card {
+      width: 100%;
+      max-width: 1000px;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      padding: 16px;
+      margin-bottom: 20px;
+      box-sizing: border-box;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .small-card img {
+      width: 15%;
+      height: 30%;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .card-text {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .card-text .name {
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .card-text .description {
+      white-space: pre-wrap; /* Allows line breaks in text */
+      line-height: 1.4;
     }
   </style>
 </head>
+
 <body>
+
+  <!-- Main card -->
   <div class="card">
-    
+    <img src="integrantes.jpeg" alt="Main Image" style="max-width: 1050px; height: auto; border-radius: 12px;">
   </div>
+
+  <!-- Small cards -->
+  <div class="small-cards-container">
+
+    <div class="small-card">
+        <img src="placeholder.png" alt="Profile photo">
+        <div class="card-text">
+            <div class="name">Matheus Emmanuel Scaramal</div>
+            <div class="description">
+            Aluno do segundo ano técnico, futuro engenheiro eletrônico.
+            Hobbies: Musculação, video games, dormir.
+            </div>
+        </div>
+   </div>
+
+    <div class="small-card">
+        <img src="placeholder.png" alt="Profile photo">
+        <div class="card-text">
+            <div class="name">Exemplo </div>
+            <div class="description">
+            Lorem ipsum
+            dolor
+            </div>
+        </div>
+   </div>
+
 </body>
 </html>
