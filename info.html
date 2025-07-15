@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-  <title>Card Layout</title>
+  <title>Equipe sustenta pitanga</title>
   <style>
     body {
       background-color: #f1f5f9;
@@ -13,6 +12,29 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    .gradient-header {
+      width: 100%; /* 100% of viewport width */
+      height: 128px; /* adjust height as needed */
+      background: linear-gradient(to right, #3b82f6, #22c55e); /* blue to green */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 2rem;
+      font-weight: bold;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* optional shadow */
+      border-radius: 0 0 10px 10px;
+      margin-bottom: 50px;
+    }
+
+    .gradient-header h1 {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 0;
     }
 
     .card {
@@ -66,8 +88,42 @@
       white-space: pre-wrap; /* Allows line breaks in text */
       line-height: 1.4;
     }
+    .logo {
+      height: 48px;
+      width: 48px;
+      object-fit: contain;
+      border-radius: 50%; /* Optional: make it round */
+      background: transparent;
+      padding:12px;
+    }
+    .button-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .button {
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: #22c55e; /* Green */
+      color: white;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      margin-bottom: 50px;
+    }
+
+    .button:hover {
+      background-color: #16a34a; /* Darker green on hover */
+      transform: translateY(-2px);
+    }
   </style>
 </head>
+
+<header class="gradient-header">
+    <img src="ccm.png" alt="Logo" class="logo">
+    <h1>Sustenta Pitanga</h1>
+</header>
 
 <body>
 
@@ -76,11 +132,13 @@
     <img src="integrantes.jpeg" alt="Main Image" style="max-width: 1050px; height: auto; border-radius: 12px;">
   </div>
 
+  <a href="index.html" class="button">Voltar para a página principal</a>
+
   <!-- Small cards -->
   <div class="small-cards-container">
 
     <div class="small-card">
-        <img src="placeholder.png" alt="Profile photo">
+        <img src="perfil imagens/me.jpg" alt="Profile photo">
         <div class="card-text">
             <div class="name">Matheus Emmanuel Scaramal</div>
             <div class="description">
@@ -101,5 +159,7 @@
         </div>
    </div>
 
+<div class="button-container">
+</div>
 </body>
 </html>
